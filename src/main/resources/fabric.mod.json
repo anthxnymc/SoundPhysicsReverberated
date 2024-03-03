@@ -13,10 +13,10 @@
   },
   "entrypoints": {
     "main": [
-      "toni.sound_physics.FabricSoundPhysicsMod"
+      "toni.sound_physics.SoundPhysicsMod"
     ],
     "client": [
-      "toni.sound_physics.FabricSoundPhysicsMod"
+      "toni.sound_physics.SoundPhysicsMod"
     ]
   },
   "mixins": [

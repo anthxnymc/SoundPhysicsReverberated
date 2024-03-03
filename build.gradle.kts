@@ -2,7 +2,7 @@ import com.matthewprenger.cursegradle.CurseArtifact
 import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseRelation
 import com.matthewprenger.cursegradle.Options
-import gg.essential.gradle.util.noServerRunConfigs 
+import gg.essential.gradle.util.noServerRunConfigs
 
 plugins {
     alias(libs.plugins.kotlin)
