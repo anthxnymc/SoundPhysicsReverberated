@@ -1,0 +1,21 @@
+{
+  "package": "toni.sound_physics.mixin",
+  "refmap": "mixins.sound_physics.refmap.json",
+  "minVersion": "0.7",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "EntityMixin",
+    "RenderSectionManagerMixin",
+    "SoundEventMixin"
+  ],
+  "client": [
+    "ChannelAccessor",
+    "ClientChunkCacheMixin",
+    "ClientLevelMixin",
+    "DebugRendererMixin",
+    "LibraryMixin",
+    "LocalPlayerMixin",
+    "SoundSystemMixin",
+    "SourceMixin"
+  ]
+}

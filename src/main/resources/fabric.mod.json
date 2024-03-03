@@ -3,23 +3,29 @@
   "id": "${id}",
   "name": "${name}",
   "version": "${version}",
-  "description": "Replaces heart particles with random pride flags.",
+  "description": "Fork of Sound Physics that doesn't lag or crash your game.",
   "authors": [
     "Toni"
   ],
   "contact": {
-    "sources": "https://github.com/anthxnymc/PridefulAnimals",
-    "issues": "https://github.com/anthxnymc/PridefulAnimals/issues"
+    "sources": "https://github.com/anthxnymc/SoundPhysicsReverberated",
+    "issues": "https://github.com/anthxnymc/SoundPhysicsReverberated/issues"
   },
   "entrypoints": {
+    "main": [
+      "toni.sound_physics.FabricSoundPhysicsMod"
+    ],
+    "client": [
+      "toni.sound_physics.FabricSoundPhysicsMod"
+    ]
   },
   "mixins": [
     "mixins.${id}.json"
   ],
   "custom": {
   },
-  "icon": "PridefulAnimals-128x.png",
-  "license": "Toni's MMC License",
+  "icon": "SoundPhysicsReverberated-128x.png",
+  "license": "LGPLv3",
   "environment": "client",
   "accessWidener": "${id}.accesswidener",
   "depends": {

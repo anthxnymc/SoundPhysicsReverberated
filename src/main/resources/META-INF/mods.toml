@@ -1,17 +1,17 @@
 modLoader = "javafml"
 loaderVersion="[1,)"
-license="Toni's MMC License"
+license="LGPLv3"
 showAsResourcePack=false
 
 [[mods]]
-modId="prideful_animals"
+modId="sound_physics"
 version="${version}"
-displayName="PridefulAnimals"
+displayName="Sound Physics Reverberated"
 authors="Toni"
-description="Replaces heart particles with random pride flags."
+description="Fork of Sound Physics that doesn't lag or crash your game."
 logoFile="PridefulAnimals-128x.png"
 
-[[dependencies.prideful_animals]]
+[[dependencies.sound_physics]]
 modId="minecraft"
 mandatory=true
 versionRange="[1.18,)"
