@@ -4,8 +4,8 @@ import toni.sound_physics.config.AllowedSoundConfig;
 import toni.sound_physics.config.OcclusionConfig;
 import toni.sound_physics.config.ReflectivityConfig;
 import toni.sound_physics.config.SoundPhysicsConfig;
-import de.maxhenkel.configbuilder.ConfigBuilder;
 import toni.sound_physics.integration.ClothConfigIntegration;
+import de.maxhenkel.configbuilder.ConfigBuilder;
 
 import java.nio.file.Path;
 
@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import java.nio.file.Path;
 
 #else
 import net.minecraftforge.fml.ModList;
@@ -27,7 +26,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 
 public class SoundPhysicsMod #if FABRIC implements ModInitializer, ClientModInitializer #endif {
 
-    public static final String MODID = "sound_physics_remastered";
+    public static final String MODID = "sound_physics";
 
     public static SoundPhysicsConfig CONFIG;
     public static ReflectivityConfig REFLECTIVITY_CONFIG;
@@ -64,10 +63,10 @@ public class SoundPhysicsMod #if FABRIC implements ModInitializer, ClientModInit
     }
 
     public Path getConfigFolder() {
-        #if FABRIC
-        return FabricLoader.getInstance().getConfigDir();
-        #else
+        #if FORGE
         return FMLLoader.getGamePath().resolve("config");
+        #else
+        return FabricLoader.getInstance().getConfigDir();
         #endif
     }
 
