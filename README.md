@@ -23,8 +23,22 @@ I'm going to assume you're familiar with how Gradle works, and are able to use I
 You're going to need to download the [**Manifold IntelliJ plugin**](https://plugins.jetbrains.com/plugin/10057-manifold), as it is required for highlighting to 
 work on the Manifold preprocessor directives. If you're not using IntelliJ, you're using the wrong editor and are on your own.
 
-You will also
+You will also probably want to set up Live Templates for the preprocessor directives, as it makes it so much easier with tab-completion. You can just type #if and hit tab, and it will generate the whole expression. I've also added an #ifinline and #ifelse. Make sure you make a new template category and enable it everywhere.
+
+![image](https://github.com/anthxnymc/SoundPhysicsReverberated/assets/67132971/a73da597-a0c3-48bb-9ff4-be010022eed0)
 
 ```
+#if $expression$
+$SELECTION$$END$ 
+#endif
+```
+```
+#if $expression$ $SELECTION$$END$ #endif
+```
+```
+#if $expression$
+$SELECTION$$END$
+#else
 
+#endif
 ```
