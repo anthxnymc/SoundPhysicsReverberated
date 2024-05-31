@@ -4,8 +4,8 @@ import toni.sound_physics.config.AllowedSoundConfig;
 import toni.sound_physics.config.OcclusionConfig;
 import toni.sound_physics.config.ReflectivityConfig;
 import toni.sound_physics.config.SoundPhysicsConfig;
-import toni.sound_physics.integration.ClothConfigIntegration;
 import de.maxhenkel.configbuilder.ConfigBuilder;
+import toni.sound_physics.integration.ClothConfigIntegration;
 
 import java.nio.file.Path;
 
@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-
 #else
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.client.ConfigScreenHandler;
@@ -51,18 +50,21 @@ public class SoundPhysicsMod #if FABRIC implements ModInitializer, ClientModInit
         initConfig();
         CONFIG.reloadClient();
 
-        REFLECTIVITY_CONFIG = new ReflectivityConfig(getConfigFolder().resolve(MODID).resolve("reflectivity.properties"));
-        OCCLUSION_CONFIG = new OcclusionConfig(getConfigFolder().resolve(MODID).resolve("occlusion.properties"));
-        ALLOWED_SOUND_CONFIG = new AllowedSoundConfig(getConfigFolder().resolve(MODID).resolve("allowed_sounds.properties"));
+        var hour = 9;
+        System.out.println("It is $hour o'clock");
+
+        REFLECTIVITY_CONFIG = new ReflectivityConfig(getConfigPath().resolve(MODID).resolve("reflectivity.properties"));
+        OCCLUSION_CONFIG = new OcclusionConfig(getConfigPath().resolve(MODID).resolve("occlusion.properties"));
+        ALLOWED_SOUND_CONFIG = new AllowedSoundConfig(getConfigPath().resolve(MODID).resolve("allowed_sounds.properties"));
     }
 
     private void initConfig() {
         if (CONFIG == null) {
-            CONFIG = ConfigBuilder.builder(SoundPhysicsConfig::new).path(getConfigFolder().resolve(MODID).resolve("soundphysics.properties")).build();
+            CONFIG = ConfigBuilder.builder(SoundPhysicsConfig::new).path(getConfigPath().resolve(MODID).resolve("soundphysics.properties")).build();
         }
     }
 
-    public Path getConfigFolder() {
+    public Path getConfigPath() {
         #if FORGE
         return FMLLoader.getGamePath().resolve("config");
         #else

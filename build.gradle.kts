@@ -3,42 +3,26 @@ import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseRelation
 import com.matthewprenger.cursegradle.Options
 import gg.essential.gradle.util.noServerRunConfigs
-//import org.jetbrains.gradle.ext.ProjectSettings
 
 plugins {
     alias(libs.plugins.kotlin)
     id(egt.plugins.multiversion.get().pluginId)
     id(egt.plugins.defaults.get().pluginId)
     alias(libs.plugins.shadow)
-    alias(libs.plugins.blossom)
     alias(libs.plugins.minotaur)
     alias(libs.plugins.cursegradle)
-    //id ("org.jetbrains.gradle.plugin.idea-ext")
+    id("systems.manifold.manifold-gradle-plugin") version "0.0.2-alpha"
 }
 
-val mcVersions = listOf("1.18.2", "1.19.2", "1.20.1");
+val mcVersions = listOf("1.18.2", "1.19.2", "1.20.1")
 
 val mod_name: String by project
 val mod_version: String by project
 val mod_id: String by project
-//
-//var list = listOf("1.18.2", "1.19.2", "1.20.1");
-//setupManifoldPreprocessors(list)
-
-preprocess {
-    vars.put("MODERN", if (project.platform.mcMinor >= 16) 1 else 0)
-}
-
-blossom {
-    replaceToken("@NAME@", mod_name)
-    replaceToken("@ID@", mod_id)
-    replaceToken("@VER@", mod_version)
-}
-
-
-
 version = mod_version
 group = "toni"
+
+manifold { manifoldVersion = "2024.1.3" }
 
 base {
     archivesName.set("$mod_name (${getMcVersionStr()}-${platform.loaderStr})")
@@ -76,14 +60,14 @@ repositories {
     mavenCentral()
 }
 
+// Creates the shade/shadow configuration, so we can include libraries inside our mod, rather than having to add them separately.
 val shade: Configuration by configurations.creating {
     configurations.implementation.get().extendsFrom(this)
 }
 
-
 dependencies {
-    //annotationProcessor("systems.manifold:manifold-ext:2024.1.3")
-    annotationProcessor("systems.manifold:manifold-preprocessor:2024.1.3")
+    // apply the Manifold processor, do not remove this
+    annotationProcessor("systems.manifold:manifold-preprocessor:${manifold.manifoldVersion.get()}")
 
     // sodium fabric/forge
     if (platform.isFabric) {
@@ -124,31 +108,27 @@ dependencies {
     }
 
     implementation("de.maxhenkel.configbuilder:configbuilder:2.0.1")
-    shadow("de.maxhenkel.configbuilder:configbuilder:2.0.1")
+    shade("de.maxhenkel.configbuilder:configbuilder:2.0.1")
 }
 
+// This task enables templating expansion for mods.toml and fabric.mod.json
 tasks.processResources {
     inputs.property("id", mod_id)
     inputs.property("name", mod_name)
-    val java = if (project.platform.mcMinor >= 18) {
-        17
-    } else {
-        if (project.platform.mcMinor == 17) 16 else 8
-    }
-    val compatLevel = "JAVA_${java}"
-    inputs.property("java", java)
-    inputs.property("java_level", compatLevel)
+    inputs.property("java", 17)
+    inputs.property("java_level", "JAVA_17")
     inputs.property("version", mod_version)
     inputs.property("mcVersionStr", project.platform.mcVersionStr)
+    // if you want to add more files to the expansion, you must add them to this list
     filesMatching(listOf("mcmod.info", "mods.toml", "fabric.mod.json")) {
         expand(
             mapOf(
                 "id" to mod_id,
                 "name" to mod_name,
-                "java" to java,
-                "java_level" to compatLevel,
+                "java" to 17,
+                "java_level" to "JAVA_17",
                 "version" to mod_version,
-                "mcVersionStr" to getInternalMcVersionStr()
+                "mcVersionStr" to getMcVersionStr()
             )
         )
     }
@@ -156,8 +136,9 @@ tasks.processResources {
 
 
 tasks {
+    // modify the JavaCompile task and inject our auto-generated Manifold symbols
     withType<JavaCompile> {
-        if(!this.name.startsWith("_")){
+        if(!this.name.startsWith("_")) { // check the name, so we don't inject into Forge internal compilation
             options.compilerArgs.add("-Xplugin:Manifold")
             setupManifoldPreprocessors(mcVersions, options.compilerArgs, platform.isFabric, projectDir, platform.mcVersionStr)
         }
@@ -177,20 +158,20 @@ tasks {
         from(rootProject.file("LICENSE"))
         from(rootProject.file("LICENSE.LESSER"))
     }
+
+    // define the shadow task
     named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
         archiveClassifier.set("dev")
         configurations = listOf(shade)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
-//    updateManifold {
-//        mcVersionList
-//        null
-//    }
+
     remapJar {
         input.set(shadowJar.get().archiveFile)
         archiveClassifier.set("")
         finalizedBy("copyJar")
     }
+
     jar {
         if (project.platform.isLegacyForge) {
             manifest {
@@ -213,14 +194,16 @@ tasks {
         from(remapJar.get().archiveFile)
         into("${project.rootDir}/jars")
     }
+
     clean { delete("${project.rootDir}/jars") }
+
     project.modrinth {
         token.set(System.getenv("MODRINTH_TOKEN"))
         projectId.set("8KWb3iU0")
         versionNumber.set(mod_version)
         versionName.set("[${getMcVersionStr()}-${platform.loaderStr}] PridefulAnimals $mod_version")
         uploadFile.set(remapJar.get().archiveFile as Any)
-        gameVersions.addAll(getMcVersionList())
+        gameVersions.addAll(getAdditionalSupportedVersions())
         if (platform.isFabric) {
             loaders.add("fabric")
             loaders.add("quilt")
@@ -244,7 +227,7 @@ tasks {
                 if (platform.isFabric) requiredDependency("fabric-api")
                 requiredDependency("yacl")
             })
-            gameVersionStrings.addAll(getMcVersionList())
+            gameVersionStrings.addAll(getAdditionalSupportedVersions())
             if (platform.isFabric) {
                 addGameVersion("Fabric")
                 addGameVersion("Quilt")
@@ -263,6 +246,7 @@ tasks {
             forgeGradleIntegration = false
         })
     }
+
     register("publish") {
         dependsOn(modrinth)
         dependsOn(curseforge)
@@ -279,22 +263,11 @@ fun getMcVersionStr(): String {
     }
 }
 
-fun getInternalMcVersionStr(): String {
-    return when (project.platform.mcVersionStr) {
-        else -> {
-            val dots = project.platform.mcVersionStr.count { it == '.' }
-            if (dots == 1) "${project.platform.mcVersionStr}.x"
-            else "${project.platform.mcVersionStr.substringBeforeLast(".")}.x"
-        }
-    }
-}
-
-fun getMcVersionList(): List<String> {
+// allows adding multiple versions to the Curseforge/Modrinth release, besides the one compiled for
+fun getAdditionalSupportedVersions(): List<String> {
     return when (project.platform.mcVersionStr) {
         "1.20.1" -> listOf("1.20", "1.20.1")
-        "1.19.2" -> listOf("1.19.2")
-        "1.18.2" -> listOf("1.18.2")
-        else -> error("Unknown version")
+        else -> listOf(project.platform.mcVersionStr)
     }
 }
 
@@ -344,8 +317,5 @@ fun setupManifoldPreprocessors(mcVers: List<String>, compilerArgs: MutableList<S
     // main project, we need to also copy the build.properties to the root folder
     val currentProject = mcString + "-" + (if (isFabric) "fabric" else "forge");
     if (mainProject == currentProject)
-        File(parent, "../../build.properties").writeText(sb.toString())
+        File(parent, "../../src/main/build.properties").writeText(sb.toString())
 }
-
-// wrapper task so that this runs on Gradle sync because it's really
-// annoying doing a full build just to get Manifold working when you change mainProject
